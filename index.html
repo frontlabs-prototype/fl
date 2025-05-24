@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Sales Outreach Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #111827; /* bg-gray-900 */
+            color: #D1D5DB; /* text-gray-300 */
+        }
+        .sidebar-icon {
+            width: 24px;
+            height: 24px;
+            stroke-width: 2;
+        }
+        .active-nav-link {
+            background-color: #374151; /* bg-gray-700 */
+            color: #F9FAFB; /* text-gray-50 */
+        }
+        .nav-link:hover {
+            background-color: #1F2937; /* bg-gray-800 */
+        }
+        .page-section {
+            display: none; /* Hidden by default, shown by JS */
+        }
+        .page-section.active {
+            display: block;
+        }
+        /* Custom scrollbar for dark theme */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1F2937; /* bg-gray-800 */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4B5563; /* bg-gray-600 */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6B7280; /* bg-gray-500 */
+        }
+        /* For the wizard steps */
+        .wizard-step { display: none; }
+        .wizard-step.active { display: block; }
+
+        /* Custom styles for input fields in dark mode */
+        input[type="text"], input[type="email"], input[type="password"], input[type="tel"], input[type="url"], input[type="search"], input[type="number"], textarea, select {
+            background-color: #374151; /* bg-gray-700 */
+            border-color: #4B5563; /* border-gray-600 */
+            color: #F9FAFB; /* text-gray-50 */
+        }
+        input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus, textarea:focus, select:focus {
+            border-color: #2563EB; /* border-blue-500 */
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5); /* focus:ring-blue-500 */
+        }
+        .btn-primary {
+            background-color: #2563EB; /* bg-blue-600 */
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #1D4ED8; /* bg-blue-700 */
+        }
+        .btn-secondary {
+            background-color: #4B5563; /* bg-gray-600 */
+            color: white;
+        }
+        .btn-secondary:hover {
+            background-color: #374151; /* bg-gray-700 */
+        }
+        .card {
+            background-color: #1F2937; /* bg-gray-800 */
+            border: 1px solid #374151; /* border-gray-700 */
+        }
+        .table th {
+            background-color: #374151; /* bg-gray-700 */
+        }
+        .table td {
+            border-color: #374151; /* border-gray-700 */
+        }
+        .tab-button.active {
+            border-bottom-color: #2563EB; /* border-blue-500 */
+            color: #2563EB; /* text-blue-500 */
+        }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden">
+
+    <aside class="w-64 bg-gray-800 p-4 space-y-4 border-r border-gray-700 flex flex-col">
+        <div class="text-2xl font-bold text-white mb-6 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 text-blue-400"><path d="M10.061 11.5H13.939L12 6L10.061 11.5ZM6 18.5L12 13L18 18.5L12 24L6 18.5ZM12 2L6 7.5L12 13L18 7.5L12 2Z"></path></svg>
+            FrontLabs
+        </div>
+        <nav class="flex-grow">
+            <ul class="space-y-2">
+                <li><a href="#" class="nav-link flex items-center space-x-3 p-2 rounded-lg active-nav-link" data-target="dashboard">
+                    <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                    <span>Dashboard</span>
+                </a></li>
+                <li><a href="#" class="nav-link flex items-center space-x-3 p-2 rounded-lg" data-target="leads">
+                    <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                    <span>Leads</span>
+                </a></li>
+                <li><a href="#" class="nav-link flex items-center space-x-3 p-2 rounded-lg" data-target="campaigns">
+                    <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4.055 11.94L3 12.995a2.25 2.25 0 0 0 0 3.182l8.945 8.945a2.25 2.25 0 0 0 3.182 0l8.945-8.945a2.25 2.25 0 0 0 0-3.182L20.055 12M5.116 11.94l8.94-8.94a2.25 2.25 0 0 1 3.182 0l.945.945"></path><path d="M14.066 6.434L17.6 2.9M10.884 9.616l3.536-3.536"></path></svg>
+                    <span>Campaigns</span>
+                </a></li>
+                <li><a href="#" class="nav-link flex items-center space-x-3 p-2 rounded-lg" data-target="ai-simulation">
+                    <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><path d="M12 8l-4 4 4 4"></path><path d="M16 12H8"></path></svg>
+                    <span>AI Call Simulation</span>
+                </a></li>
+            </ul>
+        </nav>
+        <div>
+            <a href="#" class="nav-link flex items-center space-x-3 p-2 rounded-lg" data-target="settings">
+                <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 .25 1l-.25.97a2 2 0 0 1-1.73 1L2 12.22v.44a2 2 0 0 0 2 2v.18a2 2 0 0 1 1 1.73l.43.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-.25-1l.25-.97a2 2 0 0 1 1.73-1L22 11.78v-.44a2 2 0 0 0-2-2v-.18a2 2 0 0 1-1-1.73l-.43-.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 .25 1l-.25.97a2 2 0 0 1-1.73 1L2 11.78z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                <span>Settings</span>
+            </a>
+             <div class="mt-4 p-3 bg-gray-700 rounded-lg text-sm">
+                <div class="flex items-center space-x-2">
+                    <img src="https://placehold.co/40x40/60A5FA/FFFFFF?text=AK" alt="User Avatar" class="w-10 h-10 rounded-full">
+                    <div>
+                        <p class="font-semibold text-gray-100">Adam Kaab</p>
+                        <p class="text-xs text-gray-400">Admin</p>
+                    </div>
+                </div>
+                <button class="mt-3 w-full text-xs py-1.5 px-3 rounded bg-gray-600 hover:bg-red-500 transition-colors">Logout</button>
+            </div>
+        </div>
+    </aside>
+
+    <main class="flex-1 p-6 lg:p-8 overflow-y-auto">
+        <section id="dashboard" class="page-section active">
+            <h1 class="text-3xl font-semibold text-white mb-6">Dashboard</h1>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                <div class="card p-5 rounded-xl shadow-lg">
+                    <h3 class="text-sm font-medium text-gray-400">Total Leads Reached</h3>
+                    <p class="text-3xl font-bold text-white mt-1">10,284</p>
+                    <p class="text-xs text-green-400 mt-1">+15% this month</p>
+                </div>
+                <div class="card p-5 rounded-xl shadow-lg">
+                    <h3 class="text-sm font-medium text-gray-400">Active Campaigns</h3>
+                    <p class="text-3xl font-bold text-white mt-1">12</p>
+                    <p class="text-xs text-gray-400 mt-1">3 new, 9 ongoing</p>
+                </div>
+                <div class="card p-5 rounded-xl shadow-lg">
+                    <h3 class="text-sm font-medium text-gray-400">Hot Leads Identified</h3>
+                    <p class="text-3xl font-bold text-white mt-1">317</p>
+                    <p class="text-xs text-green-400 mt-1">+8% from last week</p>
+                </div>
+                <div class="card p-5 rounded-xl shadow-lg">
+                    <h3 class="text-sm font-medium text-gray-400">Overall Conversion Rate</h3>
+                    <p class="text-3xl font-bold text-white mt-1">4.7%</p>
+                    <p class="text-xs text-red-400 mt-1">-0.5% vs target</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                <div class="lg:col-span-2 card p-5 rounded-xl shadow-lg">
+                    <h3 class="text-xl font-semibold text-white mb-4">Campaign Performance</h3>
+                    <canvas id="campaignPerformanceChart" height="150"></canvas>
+                </div>
+                <div class="card p-5 rounded-xl shadow-lg">
+                    <h3 class="text-xl font-semibold text-white mb-4">Lead Conversion Funnel</h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center p-3 bg-gray-700 rounded-md"><span>Reached</span><span class="font-bold text-blue-400">10,284</span></div>
+                        <div class="flex justify-between items-center p-3 bg-gray-700 rounded-md ml-4"><span>Engaged</span><span class="font-bold text-blue-400">3,500</span></div>
+                        <div class="flex justify-between items-center p-3 bg-gray-700 rounded-md ml-8"><span>Warm Leads</span><span class="font-bold text-blue-400">850</span></div>
+                        <div class="flex justify-between items-center p-3 bg-gray-700 rounded-md ml-12"><span>Hot Leads</span><span class="font-bold text-blue-400">317</span></div>
+                        <div class="flex justify-between items-center p-3 bg-gray-700 rounded-md ml-16"><span>Converted</span><span class="font-bold text-green-400">165</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="card p-5 rounded-xl shadow-lg">
+                    <h3 class="text-xl font-semibold text-white mb-4">Recent Activity</h3>
+                    <ul class="space-y-3 max-h-80 overflow-y-auto">
+                        <li class="flex items-center space-x-3 p-2 bg-gray-700 rounded-md">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
+                            <span class="text-sm">New lead "John Doe" marked as HOT from "Spring Promo" campaign.</span>
+                            <span class="text-xs text-gray-500 ml-auto">5 min ago</span>
+                        </li>
+                        <li class="flex items-center space-x-3 p-2 bg-gray-700 rounded-md">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor"><path d="M2.003 5.884L10 2.5l7.997 3.384A1 1 0 0019 7V16a1 1 0 01-1 1H2a1 1 0 01-1-1V7a1 1 0 011.003-1.116zM17 8.118l-7-3.513-7 3.513V15h14V8.118z" /></svg>
+                            <span class="text-sm">Email sent to 500 leads for "Q3 Outreach" campaign.</span>
+                            <span class="text-xs text-gray-500 ml-auto">1 hour ago</span>
+                        </li>
+                         <li class="flex items-center space-x-3 p-2 bg-gray-700 rounded-md">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" /></svg>
+                            <span class="text-sm">AI recommends adjusting call script for "Tech Demo" campaign.</span>
+                            <span class="text-xs text-gray-500 ml-auto">3 hours ago</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card p-5 rounded-xl shadow-lg">
+                    <h3 class="text-xl font-semibold text-white mb-4">AI Insights</h3>
+                    <div class="space-y-3">
+                        <div class="p-3 bg-gray-700 rounded-md">
+                            <p class="font-medium text-blue-300">Optimize Email Subject Lines</p>
+                            <p class="text-sm text-gray-400">Campaigns targeting "SMBs" have a 25% higher open rate with question-based subject lines.</p>
+                        </div>
+                        <div class="p-3 bg-gray-700 rounded-md">
+                            <p class="font-medium text-blue-300">Best Call Times</p>
+                            <p class="text-sm text-gray-400">Leads in the "Finance" sector are most responsive to calls between 10 AM - 11 AM local time.</p>
+                        </div>
+                         <div class="p-3 bg-gray-700 rounded-md">
+                            <p class="font-medium text-blue-300">Language Preference Impact</p>
+                            <p class="text-sm text-gray-400">Spanish-language outreach to leads tagged 'ES' shows a 40% increase in positive responses.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="leads" class="page-section">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-3xl font-semibold text-white">Leads Management</h1>
+                <button id="showLeadUploadModalBtn" class="btn-primary py-2 px-4 rounded-lg flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg>
+                    Upload Leads
+                </button>
+            </div>
+
+            <div class="card p-5 rounded-xl shadow-lg">
+                <div class="flex flex-col sm:flex-row justify-between items-center mb-4">
+                    <h3 class="text-xl font-semibold text-white mb-2 sm:mb-0">Lead Scoring & Prioritization</h3>
+                    <div class="flex space-x-2">
+                        <select class="p-2 rounded-md text-sm">
+                            <option>Filter by Score (All)</option>
+                            <option>Hot</option>
+                            <option>Warm</option>
+                            <option>Cold</option>
+                        </select>
+                        <select class="p-2 rounded-md text-sm">
+                            <option>Language (All)</option>
+                            <option>English (EN)</option>
+                            <option>Spanish (ES)</option>
+                            <option>French (FR)</option>
+                            <option>Arabic (AR)</option>
+                            <option>Russian (RU)</option>
+                        </select>
+                         <input type="text" placeholder="Search leads..." class="p-2 rounded-md text-sm w-full sm:w-auto">
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="table w-full text-sm text-left">
+                        <thead class="text-xs text-gray-300 uppercase">
+                            <tr>
+                                <th scope="col" class="px-6 py-3">Name</th>
+                                <th scope="col" class="px-6 py-3">Contact</th>
+                                <th scope="col" class="px-6 py-3">Score</th>
+                                <th scope="col" class="px-6 py-3">Language</th>
+                                <th scope="col" class="px-6 py-3">Last Contact</th>
+                                <th scope="col" class="px-6 py-3">Campaign</th>
+                                <th scope="col" class="px-6 py-3">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b hover:bg-gray-700/50">
+                                <td class="px-6 py-4 font-medium">Elena Petrova</td>
+                                <td class="px-6 py-4">elena.p@example.com</td>
+                                <td class="px-6 py-4"><span class="px-2 py-1 text-xs font-medium rounded-full bg-red-500 text-white">Hot</span></td>
+                                <td class="px-6 py-4">Russian (RU)</td>
+                                <td class="px-6 py-4">2024-05-22 (Call)</td>
+                                <td class="px-6 py-4">Q2 Tech Outreach</td>
+                                <td class="px-6 py-4"><button class="text-blue-400 hover:underline">Details</button></td>
+                            </tr>
+                            <tr class="border-b hover:bg-gray-700/50">
+                                <td class="px-6 py-4 font-medium">Marcus Chen</td>
+                                <td class="px-6 py-4">marcus.c@example.com</td>
+                                <td class="px-6 py-4"><span class="px-2 py-1 text-xs font-medium rounded-full bg-yellow-500 text-gray-900">Warm</span></td>
+                                <td class="px-6 py-4">English (EN)</td>
+                                <td class="px-6 py-4">2024-05-20 (Email)</td>
+                                <td class="px-6 py-4">Global SaaS Promo</td>
+                                <td class="px-6 py-4"><button class="text-blue-400 hover:underline">Details</button></td>
+                            </tr>
+                             <tr class="border-b hover:bg-gray-700/50">
+                                <td class="px-6 py-4 font-medium">Aisha Al Jamil</td>
+                                <td class="px-6 py-4">aisha.j@example.com</td>
+                                <td class="px-6 py-4"><span class="px-2 py-1 text-xs font-medium rounded-full bg-red-500 text-white">Hot</span></td>
+                                <td class="px-6 py-4">Arabic (AR)</td>
+                                <td class="px-6 py-4">2024-05-23 (SMS)</td>
+                                <td class="px-6 py-4">MENA Expansion</td>
+                                <td class="px-6 py-4"><button class="text-blue-400 hover:underline">Details</button></td>
+                            </tr>
+                            <tr class="hover:bg-gray-700/50">
+                                <td class="px-6 py-4 font-medium">Jean Dupont</td>
+                                <td class="px-6 py-4">jean.d@example.fr</td>
+                                <td class="px-6 py-4"><span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-500 text-white">Cold</span></td>
+                                <td class="px-6 py-4">French (FR)</td>
+                                <td class="px-6 py-4">2024-05-18 (Call Attempt)</td>
+                                <td class="px-6 py-4">EU Fintech Intro</td>
+                                <td class="px-6 py-4"><button class="text-blue-400 hover:underline">Details</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-6 flex justify-center">
+                    <nav aria-label="Page navigation">
+                      <ul class="inline-flex items-center -space-x-px">
+                        <li>
+                          <a href="#" class="py-2 px-3 ml-0 leading-tight text-gray-400 bg-gray-700 rounded-l-lg hover:bg-gray-600 hover:text-white">Previous</a>
+                        </li>
+                        <li>
+                          <a href="#" aria-current="page" class="z-10 py-2 px-3 leading-tight text-blue-500 border border-gray-600 bg-blue-900/30 hover:bg-blue-800/40 hover:text-blue-400">1</a>
+                        </li>
+                        <li>
+                          <a href="#" class="py-2 px-3 leading-tight text-gray-400 bg-gray-700 border border-gray-600 hover:bg-gray-600 hover:text-white">2</a>
+                        </li>
+                        <li>
+                          <a href="#" class="py-2 px-3 leading-tight text-gray-400 bg-gray-700 rounded-r-lg hover:bg-gray-600 hover:text-white">Next</a>
+                        </li>
+                      </ul>
+                    </nav>
+                </div>
+            </div>
+        </section>
+
+        <div id="leadUploadModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 z-50 hidden">
+            <div class="card p-6 rounded-xl shadow-2xl w-full max-w-lg transform transition-all">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-semibold text-white">Upload Leads</h2>
+                    <button id="closeLeadUploadModalBtn" class="text-gray-400 hover:text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
+                </div>
+                <div class="space-y-4">
+                    <div>
+                        <label for="leadFile" class="block text-sm font-medium text-gray-300 mb-1">Upload File (.csv, .xlsx, .txt)</label>
+                        <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-600 border-dashed rounded-md">
+                            <div class="space-y-1 text-center">
+                                <svg class="mx-auto h-12 w-12 text-gray-500" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true"><path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                                <div class="flex text-sm text-gray-400">
+                                    <label for="file-upload" class="relative cursor-pointer bg-gray-700 rounded-md font-medium text-blue-400 hover:text-blue-300 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-offset-gray-800 focus-within:ring-blue-500">
+                                        <span>Upload a file</span>
+                                        <input id="file-upload" name="file-upload" type="file" class="sr-only">
+                                    </label>
+                                    <p class="pl-1">or drag and drop</p>
+                                </div>
+                                <p class="text-xs text-gray-500">CSV, XLSX, TXT up to 10MB</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-center text-gray-500 my-2">OR</div>
+                    <div>
+                        <label for="manualLeadName" class="block text-sm font-medium text-gray-300">Manually Add Lead</label>
+                        <input type="text" id="manualLeadName" placeholder="Full Name" class="mt-1 block w-full p-2 rounded-md">
+                        <input type="email" id="manualLeadEmail" placeholder="Email Address" class="mt-2 block w-full p-2 rounded-md">
+                        <input type="tel" id="manualLeadPhone" placeholder="Phone Number (Optional)" class="mt-2 block w-full p-2 rounded-md">
+                        <select id="manualLeadLanguage" class="mt-2 block w-full p-2 rounded-md">
+                            <option value="">Select Language Preference</option>
+                            <option value="en">English</option>
+                            <option value="es">Spanish</option>
+                            <option value="fr">French</option>
+                            <option value="ar">Arabic</option>
+                            <option value="ru">Russian</option>
+                        </select>
+                    </div>
+                    <div class="flex justify-end space-x-3">
+                        <button type="button" class="btn-secondary py-2 px-4 rounded-lg" id="cancelUploadBtn">Cancel</button>
+                        <button type="button" class="btn-primary py-2 px-4 rounded-lg">Add Leads</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <section id="campaigns" class="page-section">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-3xl font-semibold text-white">Campaigns</h1>
+                <button id="newCampaignBtn" class="btn-primary py-2 px-4 rounded-lg flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" /></svg>
+                    New Campaign
+                </button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="card p-5 rounded-xl shadow-lg">
+                    <h3 class="text-lg font-semibold text-white">Q2 Tech Outreach</h3>
+                    <p class="text-sm text-gray-400 mt-1">Status: <span class="text-green-400">Active</span></p>
+                    <p class="text-sm text-gray-400">Channels: Voice, Email</p>
+                    <p class="text-sm text-gray-400">Languages: English, Russian</p>
+                    <div class="mt-3 h-2 bg-gray-700 rounded-full">
+                        <div class="h-2 bg-blue-500 rounded-full" style="width: 75%;"></div>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1 text-right">750/1000 Leads Contacted</p>
+                    <div class="mt-4 flex space-x-2">
+                        <button class="text-sm btn-secondary py-1 px-3 rounded-md">View Details</button>
+                        <button class="text-sm text-yellow-400 hover:text-yellow-300">Edit</button>
+                    </div>
+                </div>
+                 <div class="card p-5 rounded-xl shadow-lg">
+                    <h3 class="text-lg font-semibold text-white">MENA Expansion</h3>
+                    <p class="text-sm text-gray-400 mt-1">Status: <span class="text-green-400">Active</span></p>
+                    <p class="text-sm text-gray-400">Channels: SMS, Email</p>
+                    <p class="text-sm text-gray-400">Languages: Arabic, English</p>
+                    <div class="mt-3 h-2 bg-gray-700 rounded-full">
+                        <div class="h-2 bg-blue-500 rounded-full" style="width: 40%;"></div>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1 text-right">200/500 Leads Contacted</p>
+                    <div class="mt-4 flex space-x-2">
+                        <button class="text-sm btn-secondary py-1 px-3 rounded-md">View Details</button>
+                        <button class="text-sm text-yellow-400 hover:text-yellow-300">Edit</button>
+                    </div>
+                </div>
+                <div class="card p-5 rounded-xl shadow-lg">
+                    <h3 class="text-lg font-semibold text-white">Spring Promo 2024</h3>
+                    <p class="text-sm text-gray-400 mt-1">Status: <span class="text-gray-500">Completed</span></p>
+                    <p class="text-sm text-gray-400">Channels: Email</p>
+                    <p class="text-sm text-gray-400">Languages: English, Spanish, French</p>
+                     <div class="mt-3 h-2 bg-gray-700 rounded-full">
+                        <div class="h-2 bg-green-500 rounded-full" style="width: 100%;"></div>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1 text-right">2000/2000 Leads Contacted</p>
+                    <div class="mt-4 flex space-x-2">
+                        <button class="text-sm btn-secondary py-1 px-3 rounded-md">View Report</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="campaign-setup-wizard" class="page-section">
+            <h1 class="text-3xl font-semibold text-white mb-6">Create New Campaign</h1>
+            <div class="card p-6 rounded-xl shadow-lg">
+                <div class="mb-8 flex justify-between items-center">
+                    <div class="step-indicator active flex-1 text-center" data-step="1">
+                        <div class="w-8 h-8 mx-auto rounded-full bg-blue-500 text-white flex items-center justify-center">1</div>
+                        <p class="text-sm mt-1">Details</p>
+                    </div>
+                    <div class="flex-1 h-0.5 bg-gray-600"></div>
+                    <div class="step-indicator flex-1 text-center text-gray-500" data-step="2">
+                        <div class="w-8 h-8 mx-auto rounded-full bg-gray-600 text-gray-300 flex items-center justify-center">2</div>
+                        <p class="text-sm mt-1">Messages</p>
+                    </div>
+                    <div class="flex-1 h-0.5 bg-gray-600"></div>
+                    <div class="step-indicator flex-1 text-center text-gray-500" data-step="3">
+                        <div class="w-8 h-8 mx-auto rounded-full bg-gray-600 text-gray-300 flex items-center justify-center">3</div>
+                        <p class="text-sm mt-1">Audience</p>
+                    </div>
+                    <div class="flex-1 h-0.5 bg-gray-600"></div>
+                    <div class="step-indicator flex-1 text-center text-gray-500" data-step="4">
+                        <div class="w-8 h-8 mx-auto rounded-full bg-gray-600 text-gray-300 flex items-center justify-center">4</div>
+                        <p class="text-sm mt-1">Schedule</p>
+                    </div>
+                     <div class="flex-1 h-0.5 bg-gray-600"></div>
+                    <div class="step-indicator flex-1 text-center text-gray-500" data-step="5">
+                        <div class="w-8 h-8 mx-auto rounded-full bg-gray-600 text-gray-300 flex items-center justify-center">5</div>
+                        <p class="text-sm mt-1">Review</p>
+                    </div>
+                </div>
+
+                <div class="wizard-step active" data-step="1">
+                    <h2 class="text-xl font-semibold text-white mb-4">Campaign Details</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="campaignName" class="block text-sm font-medium text-gray-300">Campaign Name</label>
+                            <input type="text" id="campaignName" name="campaignName" class="mt-1 block w-full p-2 rounded-md" placeholder="e.g., Q3 Product Launch">
+                        </div>
+                        <div>
+                            <label for="campaignGoal" class="block text-sm font-medium text-gray-300">Campaign Goal</label>
+                            <textarea id="campaignGoal" name="campaignGoal" rows="3" class="mt-1 block w-full p-2 rounded-md" placeholder="e.g., Generate 50 qualified leads for new SaaS product."></textarea>
+                        </div>
+                    </div>
+                    <div class="mt-6 flex justify-end">
+                        <button class="btn-primary py-2 px-4 rounded-lg wizard-next">Next: Messages</button>
+                    </div>
+                </div>
+
+                <div class="wizard-step" data-step="2">
+                    <h2 class="text-xl font-semibold text-white mb-4">Message Templates</h2>
+                    <div class="mb-4 border-b border-gray-700">
+                        <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+                            <button class="tab-button active whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm" data-target="voice-template">Voice Script</button>
+                            <button class="tab-button whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm text-gray-400 hover:text-gray-200" data-target="email-template">Email Template</button>
+                            <button class="tab-button whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm text-gray-400 hover:text-gray-200" data-target="sms-template">SMS Template</button>
+                        </nav>
+                    </div>
+                    <div id="voice-template" class="tab-content space-y-4">
+                        <label for="voiceScript" class="block text-sm font-medium text-gray-300">AI Voice Call Script</label>
+                        <p class="text-xs text-gray-400">Use placeholders like {{lead_name}}, {{company_name}}. The AI will use a humanized voice.</p>
+                        <textarea id="voiceScript" name="voiceScript" rows="5" class="mt-1 block w-full p-2 rounded-md" placeholder="Hi {{lead_name}}, this is [Your Name] from [Your Company]..."></textarea>
+                    </div>
+                    <div id="email-template" class="tab-content space-y-4 hidden">
+                         <label for="emailSubject" class="block text-sm font-medium text-gray-300">Email Subject</label>
+                         <input type="text" id="emailSubject" class="mt-1 block w-full p-2 rounded-md" placeholder="Exciting news regarding {{company_name}}!">
+                         <label for="emailBody" class="block text-sm font-medium text-gray-300">Email Body</label>
+                         <p class="text-xs text-gray-400">Use placeholders. Basic rich text editor mock (bold, italic, lists).</p>
+                         <div class="mt-1 p-2 border border-gray-600 rounded-md h-40 bg-gray-700 text-gray-100" contenteditable="true">Hello {{lead_name}},<br><br>...</div>
+                    </div>
+                    <div id="sms-template" class="tab-content space-y-4 hidden">
+                        <label for="smsContent" class="block text-sm font-medium text-gray-300">SMS Content</label>
+                        <p class="text-xs text-gray-400">Keep it concise. Max 160 characters. Use {{lead_name}}.</p>
+                        <textarea id="smsContent" name="smsContent" rows="3" class="mt-1 block w-full p-2 rounded-md" placeholder="Hi {{lead_name}}, quick update from [Your Company]..."></textarea>
+                    </div>
+                     <div class="mt-6 flex justify-between">
+                        <button class="btn-secondary py-2 px-4 rounded-lg wizard-prev">Previous</button>
+                        <button class="btn-primary py-2 px-4 rounded-lg wizard-next">Next: Audience</button>
+                    </div>
+                </div>
+
+                <div class="wizard-step" data-step="3">
+                    <h2 class="text-xl font-semibold text-white mb-4">Audience & Language</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300">Target Lead List</label>
+                            <select class="mt-1 block w-full p-2 rounded-md">
+                                <option>All Uploaded Leads (Not Recommended)</option>
+                                <option>Leads from "Q2 Import - Tech Companies"</option>
+                                <option>Leads tagged "High Potential"</option>
+                            </select>
+                            <p class="text-xs text-gray-400 mt-1">Or, define new segment criteria (mock).</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-1">Language Selection</label>
+                            <p class="text-xs text-gray-400 mb-2">AI will use selected languages for outreach and translation if needed. Ensure lead data has language tags for best results.</p>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                <label class="flex items-center space-x-2 p-2 bg-gray-700 rounded-md hover:bg-gray-600 cursor-pointer">
+                                    <input type="checkbox" class="form-checkbox h-4 w-4 text-blue-500 bg-gray-600 border-gray-500 rounded focus:ring-blue-400" checked> <span>English</span>
+                                </label>
+                                <label class="flex items-center space-x-2 p-2 bg-gray-700 rounded-md hover:bg-gray-600 cursor-pointer">
+                                    <input type="checkbox" class="form-checkbox h-4 w-4 text-blue-500 bg-gray-600 border-gray-500 rounded focus:ring-blue-400"> <span>Spanish (Español)</span>
+                                </label>
+                                <label class="flex items-center space-x-2 p-2 bg-gray-700 rounded-md hover:bg-gray-600 cursor-pointer">
+                                    <input type="checkbox" class="form-checkbox h-4 w-4 text-blue-500 bg-gray-600 border-gray-500 rounded focus:ring-blue-400"> <span>French (Français)</span>
+                                </label>
+                                <label class="flex items-center space-x-2 p-2 bg-gray-700 rounded-md hover:bg-gray-600 cursor-pointer">
+                                    <input type="checkbox" class="form-checkbox h-4 w-4 text-blue-500 bg-gray-600 border-gray-500 rounded focus:ring-blue-400"> <span>Arabic (العربية)</span>
+                                </label>
+                                <label class="flex items-center space-x-2 p-2 bg-gray-700 rounded-md hover:bg-gray-600 cursor-pointer">
+                                    <input type="checkbox" class="form-checkbox h-4 w-4 text-blue-500 bg-gray-600 border-gray-500 rounded focus:ring-blue-400"> <span>Russian (Русский)</span>
+                                </label>
+                            </div>
+                        </div>
+                         <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-1">Outreach Channel Preferences</label>
+                             <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                                <label class="flex items-center space-x-2 p-2 bg-gray-700 rounded-md hover:bg-gray-600 cursor-pointer">
+                                    <input type="checkbox" class="form-checkbox h-4 w-4 text-blue-500 bg-gray-600 border-gray-500 rounded focus:ring-blue-400" checked> <span>AI Voice Call</span>
+                                </label>
+                                <label class="flex items-center space-x-2 p-2 bg-gray-700 rounded-md hover:bg-gray-600 cursor-pointer">
+                                    <input type="checkbox" class="form-checkbox h-4 w-4 text-blue-500 bg-gray-600 border-gray-500 rounded focus:ring-blue-400" checked> <span>Email</span>
+                                </label>
+                                <label class="flex items-center space-x-2 p-2 bg-gray-700 rounded-md hover:bg-gray-600 cursor-pointer">
+                                    <input type="checkbox" class="form-checkbox h-4 w-4 text-blue-500 bg-gray-600 border-gray-500 rounded focus:ring-blue-400"> <span>SMS</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-6 flex justify-between">
+                        <button class="btn-secondary py-2 px-4 rounded-lg wizard-prev">Previous</button>
+                        <button class="btn-primary py-2 px-4 rounded-lg wizard-next">Next: Schedule</button>
+                    </div>
+                </div>
+
+                <div class="wizard-step" data-step="4">
+                    <h2 class="text-xl font-semibold text-white mb-4">Schedule & Frequency</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="startDate" class="block text-sm font-medium text-gray-300">Start Date & Time</label>
+                            <input type="datetime-local" id="startDate" name="startDate" class="mt-1 block w-full p-2 rounded-md">
+                        </div>
+                        <div>
+                            <label for="endDate" class="block text-sm font-medium text-gray-300">End Date (Optional)</label>
+                            <input type="datetime-local" id="endDate" name="endDate" class="mt-1 block w-full p-2 rounded-md">
+                        </div>
+                        <div>
+                            <label for="frequency" class="block text-sm font-medium text-gray-300">Contact Frequency</label>
+                            <select id="frequency" name="frequency" class="mt-1 block w-full p-2 rounded-md">
+                                <option>Once per lead</option>
+                                <option>Daily until response</option>
+                                <option>Every 2 days for a week</option>
+                                <option>Custom (e.g., 3 attempts over 2 weeks)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300">Timezone Considerations</label>
+                            <select class="mt-1 block w-full p-2 rounded-md">
+                                <option>Send based on lead's local timezone (if available)</option>
+                                <option>Send based on account timezone (America/New_York)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mt-6 flex justify-between">
+                        <button class="btn-secondary py-2 px-4 rounded-lg wizard-prev">Previous</button>
+                        <button class="btn-primary py-2 px-4 rounded-lg wizard-next">Next: Review</button>
+                    </div>
+                </div>
+                
+                <div class="wizard-step" data-step="5">
+                    <h2 class="text-xl font-semibold text-white mb-4">Review & Launch</h2>
+                    <div class="space-y-3 bg-gray-700 p-4 rounded-md">
+                        <p><strong>Campaign Name:</strong> <span id="reviewCampaignName">Q3 Product Launch</span></p>
+                        <p><strong>Goal:</strong> <span id="reviewCampaignGoal">Generate 50 qualified leads...</span></p>
+                        <p><strong>Messages:</strong> Voice Script, Email Template, SMS Template configured.</p>
+                        <p><strong>Audience:</strong> Leads from "Q2 Import - Tech Companies"</p>
+                        <p><strong>Languages:</strong> English, Spanish</p>
+                        <p><strong>Channels:</strong> AI Voice Call, Email</p>
+                        <p><strong>Schedule:</strong> Starts 2024-06-01 09:00, Once per lead, Lead's local timezone.</p>
+                    </div>
+                    <div class="mt-6 flex justify-between items-center">
+                        <button class="btn-secondary py-2 px-4 rounded-lg wizard-prev">Previous</button>
+                        <div>
+                            <button class="btn-secondary py-2 px-4 rounded-lg mr-2">Save as Draft</button>
+                            <button class="btn-primary py-2 px-4 rounded-lg">Launch Campaign</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="ai-simulation" class="page-section">
+            <h1 class="text-3xl font-semibold text-white mb-6">AI Call Simulation</h1>
+            <div class="card p-6 rounded-xl shadow-lg">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="md:col-span-1 space-y-4">
+                        <h3 class="text-lg font-semibold text-white">Simulated Call: Prospect Inquiry</h3>
+                        <div>
+                            <label for="simScenario" class="block text-sm font-medium text-gray-300">Select Scenario:</label>
+                            <select id="simScenario" class="mt-1 block w-full p-2 rounded-md">
+                                <option>Standard Intro Pitch</option>
+                                <option>Objection Handling: Price</option>
+                                <option>Objection Handling: Not Interested</option>
+                                <option>Follow-up Call</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center space-x-3 bg-gray-700 p-3 rounded-md">
+                            <button class="text-blue-400 hover:text-blue-300">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" /></svg>
+                            </button>
+                            <div class="w-full bg-gray-600 rounded-full h-2.5">
+                                <div class="bg-blue-500 h-2.5 rounded-full" style="width: 45%"></div>
+                            </div>
+                            <span class="text-sm text-gray-400">1:35 / 3:10</span>
+                        </div>
+                        <div class="text-sm">
+                            <p><strong>AI Voice:</strong> Nova (Humanized)</p>
+                            <p><strong>Language:</strong> English</p>
+                            <p><strong>Sentiment (Real-time):</strong> <span class="text-green-400">Positive</span></p>
+                        </div>
+                        <button class="w-full btn-primary py-2 px-4 rounded-lg">Start New Simulation</button>
+                    </div>
+
+                    <div class="md:col-span-2 bg-gray-700 p-4 rounded-md max-h-96 overflow-y-auto">
+                        <h3 class="text-lg font-semibold text-white mb-3">Live Transcript</h3>
+                        <div class="space-y-3 text-sm">
+                            <div class="flex">
+                                <span class="font-semibold text-blue-300 w-20">AI Agent:</span>
+                                <p>Hello, is this Mr. Smith? My name is Nova, calling from TechSolutions. We're offering a new AI-powered analytics tool that could significantly boost your team's productivity. Do you have a moment to hear more?</p>
+                            </div>
+                            <div class="flex">
+                                <span class="font-semibold text-green-300 w-20">Prospect:</span>
+                                <p>Actually, yes, that sounds interesting. We've been looking into solutions like that. How does it work?</p>
+                            </div>
+                            <div class="flex">
+                                <span class="font-semibold text-blue-300 w-20">AI Agent:</span>
+                                <p>Great! Our platform integrates seamlessly with your existing data sources and uses advanced machine learning to provide actionable insights in real-time. For example, it can identify sales trends and predict customer churn with high accuracy.</p>
+                            </div>
+                             <div class="flex">
+                                <span class="font-semibold text-green-300 w-20">Prospect:</span>
+                                <p>That's impressive. What kind of pricing are we looking at?</p>
+                            </div>
+                            <div class="flex">
+                                <span class="font-semibold text-blue-300 w-20">AI Agent:</span>
+                                <p>(Simulating price discussion and value proposition...)</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="settings" class="page-section">
+            <h1 class="text-3xl font-semibold text-white mb-6">Settings & Integrations</h1>
+            <div class="space-y-8">
+                <div class="card p-6 rounded-xl shadow-lg">
+                    <h2 class="text-xl font-semibold text-white mb-4">Integrations</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-200 mb-2">CRM Platforms</h3>
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between p-3 bg-gray-700 rounded-md">
+                                    <div class="flex items-center space-x-3">
+                                        <img src="https://placehold.co/32x32/7F9CF5/FFFFFF?text=SF" alt="Salesforce" class="w-8 h-8 rounded">
+                                        <span>Salesforce</span>
+                                    </div>
+                                    <button class="btn-primary text-xs py-1 px-3 rounded-md">Connect</button>
+                                </div>
+                                <div class="flex items-center justify-between p-3 bg-gray-700 rounded-md">
+                                     <div class="flex items-center space-x-3">
+                                        <img src="https://placehold.co/32x32/F59E0B/FFFFFF?text=HS" alt="HubSpot" class="w-8 h-8 rounded">
+                                        <span>HubSpot</span>
+                                    </div>
+                                    <button class="btn-secondary text-xs py-1 px-3 rounded-md">Connected</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-200 mb-2">Email Platforms</h3>
+                             <div class="space-y-3">
+                                <div class="flex items-center justify-between p-3 bg-gray-700 rounded-md">
+                                     <div class="flex items-center space-x-3">
+                                        <img src="https://placehold.co/32x32/EA4335/FFFFFF?text=G" alt="Gmail" class="w-8 h-8 rounded">
+                                        <span>Gmail / Google Workspace</span>
+                                    </div>
+                                    <button class="btn-secondary text-xs py-1 px-3 rounded-md">Connected</button>
+                                </div>
+                                <div class="flex items-center justify-between p-3 bg-gray-700 rounded-md">
+                                     <div class="flex items-center space-x-3">
+                                        <img src="https://placehold.co/32x32/0078D4/FFFFFF?text=O" alt="Outlook" class="w-8 h-8 rounded">
+                                        <span>Outlook / Microsoft 365</span>
+                                    </div>
+                                    <button class="btn-primary text-xs py-1 px-3 rounded-md">Connect</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card p-6 rounded-xl shadow-lg">
+                    <h2 class="text-xl font-semibold text-white mb-4">Account Settings</h2>
+                    <div class="space-y-4 max-w-md">
+                        <div>
+                            <label for="userName" class="block text-sm font-medium text-gray-300">Full Name</label>
+                            <input type="text" id="userName" value="Adam Kaab" class="mt-1 block w-full p-2 rounded-md">
+                        </div>
+                        <div>
+                            <label for="userEmail" class="block text-sm font-medium text-gray-300">Email Address</label>
+                            <input type="email" id="userEmail" value="adam.kaab@example.com" class="mt-1 block w-full p-2 rounded-md">
+                        </div>
+                        <div>
+                            <label for="userPassword" class="block text-sm font-medium text-gray-300">Change Password</label>
+                            <input type="password" id="userPassword" placeholder="New Password" class="mt-1 block w-full p-2 rounded-md">
+                        </div>
+                        <button class="btn-primary py-2 px-4 rounded-lg">Save Changes</button>
+                    </div>
+                </div>
+
+                <div class="card p-6 rounded-xl shadow-lg">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold text-white">User Management</h2>
+                        <button class="btn-primary py-2 px-3 rounded-lg text-sm flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" /></svg>
+                            Add User
+                        </button>
+                    </div>
+                     <div class="overflow-x-auto">
+                        <table class="table w-full text-sm text-left">
+                            <thead class="text-xs text-gray-300 uppercase">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3">Name</th>
+                                    <th scope="col" class="px-6 py-3">Email</th>
+                                    <th scope="col" class="px-6 py-3">Role</th>
+                                    <th scope="col" class="px-6 py-3">Status</th>
+                                    <th scope="col" class="px-6 py-3">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b hover:bg-gray-700/50">
+                                    <td class="px-6 py-4 font-medium">Adam Kaab</td>
+                                    <td class="px-6 py-4">adam.kaab@example.com</td>
+                                    <td class="px-6 py-4">Admin</td>
+                                    <td class="px-6 py-4"><span class="text-green-400">Active</span></td>
+                                    <td class="px-6 py-4"><a href="#" class="text-blue-400 hover:underline">Edit</a></td>
+                                </tr>
+                                <tr class="border-b hover:bg-gray-700/50">
+                                    <td class="px-6 py-4 font-medium">Jane Doe</td>
+                                    <td class="px-6 py-4">jane.doe@example.com</td>
+                                    <td class="px-6 py-4">Sales Manager</td>
+                                    <td class="px-6 py-4"><span class="text-green-400">Active</span></td>
+                                    <td class="px-6 py-4"><a href="#" class="text-blue-400 hover:underline">Edit</a></td>
+                                </tr>
+                                <tr class="hover:bg-gray-700/50">
+                                    <td class="px-6 py-4 font-medium">John Smith</td>
+                                    <td class="px-6 py-4">john.smith@example.com</td>
+                                    <td class="px-6 py-4">Sales Rep</td>
+                                    <td class="px-6 py-4"><span class="text-yellow-400">Pending Invite</span></td>
+                                    <td class="px-6 py-4"><a href="#" class="text-blue-400 hover:underline">Resend</a></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // Basic navigation
+        const navLinks = document.querySelectorAll('.nav-link');
+        const pageSections = document.querySelectorAll('.page-section');
+        const newCampaignBtn = document.getElementById('newCampaignBtn');
+        const campaignSetupWizard = document.getElementById('campaign-setup-wizard');
+        const campaignsPage = document.getElementById('campaigns');
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.dataset.target;
+
+                navLinks.forEach(nav => nav.classList.remove('active-nav-link'));
+                link.classList.add('active-nav-link');
+
+                pageSections.forEach(section => {
+                    section.classList.remove('active');
+                    if (section.id === targetId) {
+                        section.classList.add('active');
+                    }
+                });
+                // Special handling for wizard - ensure it's not active unless specifically navigated to
+                if (targetId !== 'campaign-setup-wizard') {
+                    campaignSetupWizard.classList.remove('active');
+                }
+                 if (targetId === 'campaigns') { // If navigating to campaigns, ensure wizard is hidden and campaigns page is shown
+                    campaignsPage.classList.add('active');
+                    campaignSetupWizard.classList.remove('active');
+                }
+            });
+        });
+        
+        if (newCampaignBtn) {
+            newCampaignBtn.addEventListener('click', () => {
+                pageSections.forEach(section => section.classList.remove('active'));
+                campaignsPage.classList.remove('active'); // Ensure main campaigns page is hidden
+                campaignSetupWizard.classList.add('active');
+                // Update sidebar highlighting if needed (optional)
+                navLinks.forEach(nav => nav.classList.remove('active-nav-link'));
+                document.querySelector('.nav-link[data-target="campaigns"]').classList.add('active-nav-link'); // Keep campaigns highlighted
+                currentStep = 1;
+                updateWizardView();
+            });
+        }
+
+        // Campaign Setup Wizard Logic
+        const wizardSteps = document.querySelectorAll('.wizard-step');
+        const stepIndicators = document.querySelectorAll('.step-indicator');
+        let currentStep = 1;
+
+        function updateWizardView() {
+            wizardSteps.forEach(step => {
+                step.classList.remove('active');
+                if (parseInt(step.dataset.step) === currentStep) {
+                    step.classList.add('active');
+                }
+            });
+            stepIndicators.forEach(indicator => {
+                indicator.classList.remove('text-gray-500', 'bg-gray-600', 'bg-blue-500', 'text-white');
+                const stepNum = parseInt(indicator.dataset.step);
+                if (stepNum < currentStep) {
+                    indicator.classList.add('text-white', 'bg-blue-500'); // Completed
+                    indicator.querySelector('div').classList.remove('bg-gray-600');
+                    indicator.querySelector('div').classList.add('bg-blue-500', 'text-white');
+                } else if (stepNum === currentStep) {
+                    indicator.classList.add('text-white', 'bg-blue-500'); // Active
+                     indicator.querySelector('div').classList.remove('bg-gray-600');
+                    indicator.querySelector('div').classList.add('bg-blue-500', 'text-white');
+                } else {
+                    indicator.classList.add('text-gray-500'); // Pending
+                    indicator.querySelector('div').classList.add('bg-gray-600', 'text-gray-300');
+                }
+            });
+        }
+        
+        document.querySelectorAll('.wizard-next').forEach(button => {
+            button.addEventListener('click', () => {
+                if (currentStep < wizardSteps.length) {
+                    currentStep++;
+                    updateWizardView();
+                }
+            });
+        });
+
+        document.querySelectorAll('.wizard-prev').forEach(button => {
+            button.addEventListener('click', () => {
+                if (currentStep > 1) {
+                    currentStep--;
+                    updateWizardView();
+                }
+            });
+        });
+        
+        // Campaign wizard message template tabs
+        const templateTabButtons = document.querySelectorAll('#campaign-setup-wizard .tab-button');
+        const templateTabContents = document.querySelectorAll('#campaign-setup-wizard .tab-content');
+
+        templateTabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                templateTabButtons.forEach(btn => {
+                    btn.classList.remove('active', 'text-blue-500', 'border-blue-500');
+                    btn.classList.add('text-gray-400', 'hover:text-gray-200');
+                });
+                button.classList.add('active', 'text-blue-500', 'border-blue-500');
+                button.classList.remove('text-gray-400');
+
+                const targetContentId = button.dataset.target;
+                templateTabContents.forEach(content => {
+                    content.classList.add('hidden');
+                    if (content.id === targetContentId) {
+                        content.classList.remove('hidden');
+                    }
+                });
+            });
+        });
+
+
+        // Lead Upload Modal
+        const leadUploadModal = document.getElementById('leadUploadModal');
+        const showLeadUploadModalBtn = document.getElementById('showLeadUploadModalBtn');
+        const closeLeadUploadModalBtn = document.getElementById('closeLeadUploadModalBtn');
+        const cancelUploadBtn = document.getElementById('cancelUploadBtn');
+
+        if (showLeadUploadModalBtn) {
+            showLeadUploadModalBtn.addEventListener('click', () => leadUploadModal.classList.remove('hidden'));
+        }
+        if (closeLeadUploadModalBtn) {
+            closeLeadUploadModalBtn.addEventListener('click', () => leadUploadModal.classList.add('hidden'));
+        }
+        if (cancelUploadBtn) {
+            cancelUploadBtn.addEventListener('click', () => leadUploadModal.classList.add('hidden'));
+        }
+         // Close modal on escape key
+        window.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && !leadUploadModal.classList.contains('hidden')) {
+                leadUploadModal.classList.add('hidden');
+            }
+        });
+
+
+        // Mock Chart.js
+        if (document.getElementById('campaignPerformanceChart')) {
+            const ctx = document.getElementById('campaignPerformanceChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Engagement Rate',
+                        data: [65, 59, 80, 81, 56, 70],
+                        borderColor: 'rgb(59, 130, 246)',
+                        tension: 0.3,
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        fill: true,
+                    }, {
+                        label: 'Conversion Rate',
+                        data: [28, 48, 40, 19, 86, 35],
+                        borderColor: 'rgb(16, 185, 129)',
+                        tension: 0.3,
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        fill: true,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: '#374151'}, ticks: {color: '#9CA3AF'} },
+                        x: { grid: { color: '#374151'}, ticks: {color: '#9CA3AF'} }
+                    },
+                    plugins: { legend: { labels: { color: '#D1D5DB' } } }
+                }
+            });
+        }
+        // Initialize first step of wizard if campaign setup is active by default (it's not, but good practice)
+        if (campaignSetupWizard && campaignSetupWizard.classList.contains('active')) {
+            updateWizardView();
+        }
+    </script>
+</body>
+</html>
